@@ -329,3 +329,86 @@
   font-style: italic;
   color: #4b5563;
 }
+
+/* ------------------------------------------------------------------------- */
+/* Snackbar (toast)                                                          */
+/* ------------------------------------------------------------------------- */
+.ns-snackbar {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 240px;
+  max-width: 420px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.12),
+    0 4px 10px rgba(0, 0, 0, 0.08);
+  z-index: 1000;
+  animation: ns-snackbar-in 180ms ease-out;
+}
+@keyframes ns-snackbar-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.ns-snackbar--info {
+  background: #1f2937;
+  color: #ffffff;
+}
+.ns-snackbar--success {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+.ns-snackbar--error {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.ns-snackbar-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.ns-snackbar-message {
+  flex: 1;
+  min-width: 0;
+}
+.ns-snackbar-close {
+  background: transparent;
+  border: none;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0 4px;
+}
+.ns-snackbar-close:hover {
+  opacity: 1;
+}
+
+/* Spinner for the info/"Updating Settings…" snackbar */
+.ns-spinner {
+  animation: ns-spin 700ms linear infinite;
+  transform-origin: 50% 50%;
+}
+@keyframes ns-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

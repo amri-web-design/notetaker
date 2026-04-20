@@ -1,5 +1,28 @@
-import { useState, type ChangeEvent, type KeyboardEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type KeyboardEvent,
+} from "react";
 import "./NotetakerSettings.css";
+
+// Messages copied verbatim from the real recruiterflow frontend so the
+// prototype reads identically to production:
+//   en.aiNotetaker.updatingGeneralSettings  -> "Updating Settings…"
+//   en.aiNotetaker.generalSettingsUpdated   -> "Settings updated successfully."
+//   en.somethingWentWrong                   -> "Something went wrong"
+const MSG_UPDATING = "Updating Settings…";
+const MSG_SUCCESS = "Settings updated successfully.";
+const MSG_ERROR = "Something went wrong";
+
+// Simulate the latency of the real /api/ai-notetaker/general-settings/edit
+// call. The real app flashes "Updating Settings…" while the request is in
+// flight and then swaps to "Settings updated successfully." on 200.
+const SAVE_LATENCY_MS = 600;
+
+type SnackbarKind = "info" | "success" | "error";
+type SnackbarState = { kind: SnackbarKind; message: string } | null;
 
 const PRIMARY_TRIGGER_OPTIONS = [
   { label: "All calls with web-conf link", value: 1 },
@@ -51,6 +74,56 @@ export default function NotetakerSettings() {
 
   const disabled = !autoInviteEnabled;
 
+  // --- Snackbar (toast) state -----------------------------------------------
+  const [snackbar, setSnackbar] = useState<SnackbarState>(null);
+  const dismissTimeoutRef = useRef<number | null>(null);
+  const transitionTimeoutRef = useRef<number | null>(null);
+
+  // Clear any pending timeouts if the component unmounts mid-save.
+  useEffect(() => {
+    return () => {
+      if (dismissTimeoutRef.current) clearTimeout(dismissTimeoutRef.current);
+      if (transitionTimeoutRef.current)
+        clearTimeout(transitionTimeoutRef.current);
+    };
+  }, []);
+
+  /** Show a snackbar, replacing whatever's currently on screen. */
+  const showSnackbar = (
+    kind: SnackbarKind,
+    message: string,
+    autoDismissMs: number | null = 3000,
+  ) => {
+    if (dismissTimeoutRef.current) clearTimeout(dismissTimeoutRef.current);
+    setSnackbar({ kind, message });
+    if (autoDismissMs !== null) {
+      dismissTimeoutRef.current = window.setTimeout(
+        () => setSnackbar(null),
+        autoDismissMs,
+      );
+    }
+  };
+
+  /**
+   * Mirror the real app's save flow: flash "Updating Settings…" while the
+   * request is in flight, then swap to success on resolve. No backend here,
+   * so we use a timeout. `onSuccess` runs before the success toast fires,
+   * which mirrors how the Redux action would update form state.
+   */
+  const simulateSave = (onSuccess?: () => void, simulateFailure = false) => {
+    showSnackbar("info", MSG_UPDATING, null);
+    if (transitionTimeoutRef.current)
+      clearTimeout(transitionTimeoutRef.current);
+    transitionTimeoutRef.current = window.setTimeout(() => {
+      if (simulateFailure) {
+        showSnackbar("error", MSG_ERROR);
+      } else {
+        onSuccess?.();
+        showSnackbar("success", MSG_SUCCESS);
+      }
+    }, SAVE_LATENCY_MS);
+  };
+
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== "Enter") return;
     e.preventDefault();
@@ -68,9 +141,12 @@ export default function NotetakerSettings() {
       setExclusionError("");
       return;
     }
-    setExcludedEntries([...excludedEntries, lower]);
+    // Optimistically stage the input clear, then fire the simulated save.
     setExclusionInput("");
     setExclusionError("");
+    simulateSave(() => {
+      setExcludedEntries([...excludedEntries, lower]);
+    });
   };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -79,7 +155,30 @@ export default function NotetakerSettings() {
   };
 
   const removeEntry = (entry: string) => {
-    setExcludedEntries(excludedEntries.filter((e) => e !== entry));
+    simulateSave(() => {
+      setExcludedEntries(excludedEntries.filter((e) => e !== entry));
+    });
+  };
+
+  const handleToggleAutoInvite = () => {
+    const next = !autoInviteEnabled;
+    setAutoInviteEnabled(next); // update UI immediately; server call follows
+    simulateSave();
+  };
+
+  const handlePrimaryTriggerChange = (v: number) => {
+    setPrimaryTrigger(v);
+    simulateSave();
+  };
+
+  const handleOwnerTriggerChange = (v: number) => {
+    setOwnerTrigger(v);
+    simulateSave();
+  };
+
+  const handleExcludeBothChange = (checked: boolean) => {
+    setExcludeBoth(checked);
+    simulateSave();
   };
 
   return (
@@ -100,7 +199,7 @@ export default function NotetakerSettings() {
           role="switch"
           aria-checked={autoInviteEnabled}
           className={`ns-toggle${autoInviteEnabled ? " ns-toggle--on" : ""}`}
-          onClick={() => setAutoInviteEnabled(!autoInviteEnabled)}
+          onClick={handleToggleAutoInvite}
         >
           <span className="ns-toggle-thumb" />
         </button>
@@ -111,13 +210,13 @@ export default function NotetakerSettings() {
         <Select
           value={primaryTrigger}
           options={PRIMARY_TRIGGER_OPTIONS}
-          onChange={setPrimaryTrigger}
+          onChange={handlePrimaryTriggerChange}
           disabled={disabled}
         />
         <Select
           value={ownerTrigger}
           options={OWNER_OPTIONS}
-          onChange={setOwnerTrigger}
+          onChange={handleOwnerTriggerChange}
           disabled={disabled}
         />
       </div>
@@ -133,7 +232,7 @@ export default function NotetakerSettings() {
             type="checkbox"
             checked={excludeBoth}
             disabled={disabled}
-            onChange={(e) => setExcludeBoth(e.target.checked)}
+            onChange={(e) => handleExcludeBothChange(e.target.checked)}
           />
           <div className="ns-checkbox-content">
             <div className="ns-checkbox-label">
@@ -201,6 +300,8 @@ export default function NotetakerSettings() {
           )}
         </div>
       </div>
+
+      <Snackbar state={snackbar} onClose={() => setSnackbar(null)} />
     </div>
   );
 }
@@ -208,6 +309,99 @@ export default function NotetakerSettings() {
 /* ------------------------------------------------------------------------- */
 /* Helpers                                                                   */
 /* ------------------------------------------------------------------------- */
+
+function Snackbar({
+  state,
+  onClose,
+}: {
+  state: SnackbarState;
+  onClose: () => void;
+}) {
+  if (!state) return null;
+  return (
+    <div
+      className={`ns-snackbar ns-snackbar--${state.kind}`}
+      role="status"
+      aria-live="polite"
+    >
+      <span className="ns-snackbar-icon" aria-hidden>
+        {state.kind === "info" ? (
+          <Spinner />
+        ) : state.kind === "success" ? (
+          <CheckIcon />
+        ) : (
+          <AlertIcon />
+        )}
+      </span>
+      <span className="ns-snackbar-message">{state.message}</span>
+      {state.kind !== "info" && (
+        <button
+          type="button"
+          className="ns-snackbar-close"
+          aria-label="Dismiss"
+          onClick={onClose}
+        >
+          ×
+        </button>
+      )}
+    </div>
+  );
+}
+
+function Spinner() {
+  return (
+    <svg
+      className="ns-spinner"
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden
+    >
+      <circle
+        cx="12"
+        cy="12"
+        r="9"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeDasharray="14 40"
+      />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M5 12.5 10 17.5 19 7.5"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function AlertIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+      <line
+        x1="12"
+        y1="7"
+        x2="12"
+        y2="13"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <circle cx="12" cy="16.5" r="1.2" fill="currentColor" />
+    </svg>
+  );
+}
 
 type Option = { label: string; value: number };
 
