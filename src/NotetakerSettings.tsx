@@ -38,6 +38,25 @@ const OWNER_OPTIONS = [
   { label: "Where owner is anyone", value: 2 },
 ];
 
+const LANGUAGE_OPTIONS = [
+  { label: "English", value: 1 },
+  { label: "Spanish", value: 2 },
+  { label: "French", value: 3 },
+  { label: "German", value: 4 },
+  { label: "Portuguese", value: 5 },
+  { label: "Dutch", value: 6 },
+];
+
+const DUE_DATE_OPTIONS = [
+  { label: "Day of meeting", value: 1 },
+  { label: "1 day after meeting", value: 2 },
+  { label: "3 days after meeting", value: 3 },
+  { label: "1 week after meeting", value: 4 },
+];
+
+const DUE_DATE_TOOLTIP =
+  "Default due date is applied when AIRA doesn\u2019t detect one.";
+
 const HELPER_TEXT =
   "Changes to these settings apply immediately to calendar events created from now on. If new settings would prevent the bot from joining already-scheduled meetings, those invites will be cancelled. The bot will never be added to meetings scheduled before the change.";
 
@@ -71,6 +90,13 @@ export default function NotetakerSettings() {
   ]);
   const [exclusionInput, setExclusionInput] = useState("");
   const [exclusionError, setExclusionError] = useState("");
+
+  // Other general-settings sections (match the real page)
+  const [transcriptLanguage, setTranscriptLanguage] = useState(1);
+  const [recordMeeting, setRecordMeeting] = useState(true);
+  const [informParticipants, setInformParticipants] = useState(false);
+  const [showAiraTasks, setShowAiraTasks] = useState(true);
+  const [defaultDueDate, setDefaultDueDate] = useState(1);
 
   const disabled = !autoInviteEnabled;
 
@@ -181,8 +207,36 @@ export default function NotetakerSettings() {
     simulateSave();
   };
 
+  const handleLanguageChange = (v: number) => {
+    setTranscriptLanguage(v);
+    simulateSave();
+  };
+
+  const handleRecordMeetingToggle = () => {
+    setRecordMeeting((v) => !v);
+    simulateSave();
+  };
+
+  const handleInformParticipantsToggle = () => {
+    setInformParticipants((v) => !v);
+    simulateSave();
+  };
+
+  const handleShowAiraTasksToggle = () => {
+    setShowAiraTasks((v) => !v);
+    simulateSave();
+  };
+
+  const handleDueDateChange = (v: number) => {
+    setDefaultDueDate(v);
+    simulateSave();
+  };
+
   return (
-    <div className="ns-section">
+    <div className="ns-page">
+      <h1 className="ns-page-title">General settings</h1>
+
+      <div className="ns-section ns-section--auto-invite">
       {/* Header: title (with info tooltip) + toggle */}
       <div className="ns-header">
         <div className="ns-title-row">
@@ -298,6 +352,94 @@ export default function NotetakerSettings() {
               <em>mail.clientcorp.com</em>). Emails match exactly.
             </p>
           )}
+        </div>
+      </div>
+      </div>
+
+      {/* Transcript language */}
+      <div className="ns-half-section">
+        <p className="ns-field-label">TRANSCRIPT LANGUAGE</p>
+        <Select
+          value={transcriptLanguage}
+          options={LANGUAGE_OPTIONS}
+          onChange={handleLanguageChange}
+        />
+      </div>
+
+      {/* Record meeting card */}
+      <div className="ns-card">
+        <div className="ns-card-row">
+          <div className="ns-card-content">
+            <h3 className="ns-card-title">Record meeting</h3>
+            <p className="ns-card-desc">Capture the video for your meetings</p>
+          </div>
+          <Toggle
+            checked={recordMeeting}
+            onClick={handleRecordMeetingToggle}
+            ariaLabel="Record meeting"
+          />
+        </div>
+      </div>
+
+      {/* Notification card */}
+      <div className="ns-card">
+        <h3 className="ns-card-title">Notification</h3>
+        <div className="ns-card-row">
+          <p className="ns-card-desc ns-card-desc--notification">
+            Inform all participants 1 hour prior to a meeting that Recruiterflow
+            will be present to record it.
+          </p>
+          <Toggle
+            checked={informParticipants}
+            onClick={handleInformParticipantsToggle}
+            ariaLabel="Inform participants"
+          />
+        </div>
+      </div>
+
+      {/* AIRA generated Tasks card */}
+      <div className="ns-card">
+        <div className="ns-card-row">
+          <div className="ns-card-content">
+            <div className="ns-card-title ns-card-title--with-icon">
+              <AiStarIcon />
+              <span>AIRA generated Tasks</span>
+            </div>
+          </div>
+        </div>
+        <div className="ns-card-row ns-card-row--spaced">
+          <div className="ns-card-content">
+            <h4 className="ns-card-subtitle">
+              Show AIRA generated tasks on the Tasks page
+            </h4>
+            <p className="ns-card-desc ns-card-desc--muted">
+              <InfoIcon /> Control whether tasks created by AIRA Notetaker
+              appear on your Task table.
+            </p>
+          </div>
+          <Toggle
+            checked={showAiraTasks}
+            onClick={handleShowAiraTasksToggle}
+            ariaLabel="Show AIRA tasks"
+          />
+        </div>
+        <div className="ns-card-row ns-card-row--border-top">
+          <div className="ns-card-content ns-card-content--due-date">
+            <div className="ns-field-label-row">
+              <p className="ns-field-label">DEFAULT AIRA TASK DUE DATE</p>
+              <span className="ns-tooltip-wrapper" tabIndex={0}>
+                <InfoIcon />
+                <span className="ns-tooltip" role="tooltip">
+                  {DUE_DATE_TOOLTIP}
+                </span>
+              </span>
+            </div>
+            <Select
+              value={defaultDueDate}
+              options={DUE_DATE_OPTIONS}
+              onChange={handleDueDateChange}
+            />
+          </div>
         </div>
       </div>
 
@@ -493,6 +635,50 @@ function Select({
         </ul>
       )}
     </div>
+  );
+}
+
+function Toggle({
+  checked,
+  onClick,
+  disabled,
+  ariaLabel,
+}: {
+  checked: boolean;
+  onClick: () => void;
+  disabled?: boolean;
+  ariaLabel?: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={ariaLabel}
+      disabled={disabled}
+      className={`ns-toggle${checked ? " ns-toggle--on" : ""}`}
+      onClick={onClick}
+    >
+      <span className="ns-toggle-thumb" />
+    </button>
+  );
+}
+
+function AiStarIcon() {
+  return (
+    <span className="ns-ai-star-icon" aria-hidden>
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        {/* Four-point sparkle/star */}
+        <path d="M12 2 L13.8 8.2 L20 10 L13.8 11.8 L12 18 L10.2 11.8 L4 10 L10.2 8.2 Z" />
+        <path d="M18 14 L18.8 16.2 L21 17 L18.8 17.8 L18 20 L17.2 17.8 L15 17 L17.2 16.2 Z" />
+      </svg>
+    </span>
   );
 }
 

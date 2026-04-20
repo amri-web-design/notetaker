@@ -1,3 +1,132 @@
+/* Page shell */
+.ns-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.ns-page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0b1726;
+  margin: 0;
+  line-height: 32px;
+}
+
+/* Half-width section for transcript language */
+.ns-half-section {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Small-caps field labels ("TRANSCRIPT LANGUAGE", "DEFAULT AIRA TASK DUE DATE") */
+.ns-field-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0b1726;
+  letter-spacing: 0.03em;
+  line-height: 20px;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.ns-field-label-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Generic "card" block used by the remaining sections */
+.ns-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.ns-card-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.ns-card-row--spaced {
+  align-items: flex-start;
+}
+.ns-card-row--border-top {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 16px;
+  align-items: flex-start;
+}
+.ns-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+.ns-card-content--due-date {
+  gap: 10px;
+  flex: 1;
+}
+.ns-card-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0b1726;
+  margin: 0;
+  line-height: 28px;
+}
+.ns-card-title--with-icon {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ns-card-subtitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0b1726;
+  margin: 0;
+  line-height: 24px;
+}
+.ns-card-desc {
+  font-size: 14px;
+  font-weight: 400;
+  color: #4b5563;
+  margin: 0;
+  line-height: 20px;
+}
+.ns-card-desc--notification {
+  flex: 1;
+  max-width: 720px;
+}
+.ns-card-desc--muted {
+  color: #6b7280;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ns-card-desc--muted .ns-info-icon {
+  color: #9ca3af;
+}
+
+/* AI star/sparkle icon — gradient rounded-square chip */
+.ns-ai-star-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #4aa1ff 0%, #6455ff 100%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
 /* Section container */
 .ns-section {
   background: #ffffff;

@@ -10,7 +10,7 @@ export default function App() {
       <style>{`
         .page-wrapper {
           min-height: 100vh;
-          padding: 40px 24px;
+          padding: 40px 24px 80px;
           display: flex;
           justify-content: center;
         }
