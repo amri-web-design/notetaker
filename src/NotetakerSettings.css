@@ -125,29 +125,53 @@
   position: relative;
   flex: 1;
 }
-.ns-select select {
+
+/* Trigger button — looks like the closed state of a Material select */
+.ns-select-trigger {
   width: 100%;
-  height: 44px;
+  height: 48px;
   padding: 0 44px 0 14px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   background: #ffffff;
   font-size: 14px;
+  font-weight: 400;
   color: #111827;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
   cursor: pointer;
   outline: none;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  position: relative;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease;
 }
-.ns-select select:focus {
+.ns-select-trigger:hover:not(:disabled) {
+  border-color: #9ca3af;
+}
+.ns-select-trigger:focus-visible {
   border-color: #2970ff;
+  box-shadow: 0 0 0 3px rgba(41, 112, 255, 0.18);
 }
-.ns-select--disabled select {
-  opacity: 0.6;
-  cursor: not-allowed;
+.ns-select--open .ns-select-trigger {
+  border-color: #2970ff;
+  box-shadow: 0 0 0 3px rgba(41, 112, 255, 0.18);
+}
+.ns-select-value {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ns-select--disabled .ns-select-trigger {
   background: #f9fafb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  border-color: #e5e7eb;
 }
+
+/* Caret rotates 180° when the menu is open */
 .ns-select-caret {
   position: absolute;
   right: 14px;
@@ -159,6 +183,76 @@
   justify-content: center;
   line-height: 1;
   pointer-events: none;
+  transition: transform 150ms ease;
+}
+.ns-select--open .ns-select-caret {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+/* Dropdown menu */
+.ns-select-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow:
+    0 12px 32px rgba(15, 23, 42, 0.14),
+    0 4px 10px rgba(15, 23, 42, 0.06);
+  max-height: 320px;
+  overflow-y: auto;
+  z-index: 30;
+  animation: ns-select-in 140ms ease-out;
+}
+@keyframes ns-select-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.ns-select-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #111827;
+  cursor: pointer;
+  transition: background 80ms ease;
+}
+.ns-select-option:hover {
+  background: #f3f4f6;
+}
+.ns-select-option--selected {
+  background: #eef0ff;
+  color: #2970ff;
+  font-weight: 600;
+}
+.ns-select-option--selected:hover {
+  background: #e4e8ff;
+}
+.ns-select-option-label {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ns-select-option-check {
+  display: inline-flex;
+  color: #2970ff;
+  flex-shrink: 0;
 }
 
 /* Smart exclusion block */
@@ -335,7 +429,7 @@
 /* ------------------------------------------------------------------------- */
 .ns-snackbar {
   position: fixed;
-  bottom: 24px;
+  top: 24px;
   left: 50%;
   transform: translateX(-50%);
   display: inline-flex;
@@ -357,7 +451,7 @@
 @keyframes ns-snackbar-in {
   from {
     opacity: 0;
-    transform: translate(-50%, 8px);
+    transform: translate(-50%, -8px);
   }
   to {
     opacity: 1;

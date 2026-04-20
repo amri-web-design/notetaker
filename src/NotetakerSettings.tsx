@@ -26,9 +26,9 @@ type SnackbarState = { kind: SnackbarKind; message: string } | null;
 
 const PRIMARY_TRIGGER_OPTIONS = [
   { label: "All calls with web-conf link", value: 1 },
-  { label: "Meetings with candidates only", value: 2 },
+  { label: "Meetings with Candidates only", value: 2 },
   { label: "Meetings with Contacts only", value: 3 },
-  { label: "Meetings with candidates OR Contacts", value: 4 },
+  { label: "Meetings with Candidates OR Contacts", value: 4 },
   { label: "Internal meetings only", value: 5 },
   { label: "External meetings only", value: 6 },
 ];
@@ -416,22 +416,82 @@ function Select({
   onChange: (v: number) => void;
   disabled?: boolean;
 }) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const selected = options.find((o) => o.value === value);
+
+  // Close on outside click and on Escape.
+  useEffect(() => {
+    if (!open) return;
+    const handleClick = (e: MouseEvent) => {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const handleKey = (e: globalThis.KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("keydown", handleKey);
+    };
+  }, [open]);
+
+  // Force-close if the control becomes disabled mid-open.
+  useEffect(() => {
+    if (disabled && open) setOpen(false);
+  }, [disabled, open]);
+
   return (
-    <div className={`ns-select${disabled ? " ns-select--disabled" : ""}`}>
-      <select
-        value={value}
+    <div
+      ref={rootRef}
+      className={`ns-select${disabled ? " ns-select--disabled" : ""}${
+        open ? " ns-select--open" : ""
+      }`}
+    >
+      <button
+        type="button"
+        className="ns-select-trigger"
         disabled={disabled}
-        onChange={(e) => onChange(Number(e.target.value))}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => !disabled && setOpen((v) => !v)}
       >
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-      <span className="ns-select-caret" aria-hidden>
-        <CaretDownIcon />
-      </span>
+        <span className="ns-select-value">{selected?.label}</span>
+        <span className="ns-select-caret" aria-hidden>
+          <CaretDownIcon />
+        </span>
+      </button>
+      {open && (
+        <ul className="ns-select-menu" role="listbox">
+          {options.map((opt) => {
+            const isSelected = opt.value === value;
+            return (
+              <li
+                key={opt.value}
+                role="option"
+                aria-selected={isSelected}
+                className={`ns-select-option${
+                  isSelected ? " ns-select-option--selected" : ""
+                }`}
+                onClick={() => {
+                  onChange(opt.value);
+                  setOpen(false);
+                }}
+              >
+                <span className="ns-select-option-label">{opt.label}</span>
+                {isSelected && (
+                  <span className="ns-select-option-check" aria-hidden>
+                    <CheckIcon />
+                  </span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 }
