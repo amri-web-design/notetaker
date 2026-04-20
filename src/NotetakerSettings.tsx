@@ -665,18 +665,29 @@ function Toggle({
 }
 
 function AiStarIcon() {
+  // Paths copied verbatim from
+  // https://d30417wqrqt2r9.cloudfront.net/static/css/rf-icons/ai-star-icon.svg
+  // — the same asset the real recruiterflow app serves. Paths are filled
+  // white here because the parent .ns-ai-star-icon chip paints the gradient,
+  // matching how general-settings.component.scss styles this icon in the
+  // real repo (`.ai-star-icon { background: gradient; & svg path { fill: white; } }`).
   return (
     <span className="ns-ai-star-icon" aria-hidden>
       <svg
-        width="18"
-        height="18"
-        viewBox="0 0 24 24"
-        fill="currentColor"
+        width="22"
+        height="22"
+        viewBox="0 0 22 22"
+        fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* Four-point sparkle/star */}
-        <path d="M12 2 L13.8 8.2 L20 10 L13.8 11.8 L12 18 L10.2 11.8 L4 10 L10.2 8.2 Z" />
-        <path d="M18 14 L18.8 16.2 L21 17 L18.8 17.8 L18 20 L17.2 17.8 L15 17 L17.2 16.2 Z" />
+        <path
+          d="M10.7941 3.46852C10.8231 3.22469 11.1769 3.22469 11.2059 3.46852L11.4486 5.51407C11.762 8.15543 13.8445 10.2379 16.4858 10.5514L18.5314 10.7941C18.7752 10.823 18.7752 11.1768 18.5314 11.2058L16.4858 11.4485C13.8445 11.7619 11.762 13.8444 11.4486 16.4858L11.2059 18.5313C11.1769 18.7752 10.8231 18.7752 10.7941 18.5313L10.5514 16.4858C10.238 13.8444 8.15549 11.7619 5.51413 11.4485L3.46858 11.2058C3.22475 11.1768 3.22475 10.823 3.46858 10.7941L5.51413 10.5514C8.15549 10.2379 10.238 8.15543 10.5514 5.51407L10.7941 3.46852Z"
+          fill="white"
+        />
+        <path
+          d="M16.0741 3.3466C16.0837 3.26532 16.2017 3.26532 16.2113 3.3466L16.2922 4.02845C16.3967 4.90891 17.0909 5.60308 17.9713 5.70755L18.6532 5.78845C18.7344 5.7981 18.7344 5.91604 18.6532 5.9257L17.9713 6.0066C17.0909 6.11107 16.3967 6.80524 16.2922 7.68569L16.2113 8.36754C16.2017 8.44882 16.0837 8.44882 16.0741 8.36754L15.9932 7.68569C15.8887 6.80524 15.1945 6.11107 14.3141 6.0066L13.6322 5.9257C13.5509 5.91604 13.5509 5.7981 13.6322 5.78845L14.3141 5.70755C15.1945 5.60308 15.8887 4.90891 15.9932 4.02845L16.0741 3.3466Z"
+          fill="white"
+        />
       </svg>
     </span>
   );

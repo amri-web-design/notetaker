@@ -114,16 +114,17 @@
   color: #9ca3af;
 }
 
-/* AI star/sparkle icon — gradient rounded-square chip */
+/* AI star/sparkle icon — gradient rounded-square chip
+   Dimensions and gradient direction copied from
+   react/recruiterflow/.../general-settings.component.scss:181-198 */
 .ns-ai-star-icon {
   width: 28px;
   height: 28px;
-  border-radius: 6px;
-  background: linear-gradient(135deg, #4aa1ff 0%, #6455ff 100%);
+  border-radius: 4px;
+  background: linear-gradient(to right, #4aa1ff, #6455ff);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
   flex-shrink: 0;
 }
 
