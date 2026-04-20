@@ -4,8 +4,8 @@ import "./NotetakerSettings.css";
 const PRIMARY_TRIGGER_OPTIONS = [
   { label: "All calls with web-conf link", value: 1 },
   { label: "Meetings with candidates only", value: 2 },
-  { label: "Meetings with clients/contacts only", value: 3 },
-  { label: "Meetings with candidates OR clients/contacts", value: 4 },
+  { label: "Meetings with Contacts only", value: 3 },
+  { label: "Meetings with candidates OR Contacts", value: 4 },
   { label: "Internal meetings only", value: 5 },
   { label: "External meetings only", value: 6 },
 ];
@@ -236,9 +236,25 @@ function Select({
         ))}
       </select>
       <span className="ns-select-caret" aria-hidden>
-        ▾
+        <CaretDownIcon />
       </span>
     </div>
+  );
+}
+
+function CaretDownIcon() {
+  // Matches FontAwesome "fas caret-down" shape — solid triangle pointing down.
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 320 512"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+    >
+      <path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3 0l128-128c9.2-9.2 11.9-22.9 6.9-34.9s-16.6-19.8-29.6-19.8H32c-12.9 0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z" />
+    </svg>
   );
 }
 

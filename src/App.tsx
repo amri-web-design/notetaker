@@ -15,8 +15,8 @@ export default function App() {
           justify-content: center;
         }
         .page-container {
-          max-width: 720px;
           width: 100%;
+          max-width: 1000px;
         }
       `}</style>
     </div>

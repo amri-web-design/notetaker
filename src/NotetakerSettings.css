@@ -154,7 +154,9 @@
   top: 50%;
   transform: translateY(-50%);
   color: #4b5563;
-  font-size: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   line-height: 1;
   pointer-events: none;
 }
