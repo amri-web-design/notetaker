@@ -84,9 +84,17 @@ export default function NotetakerSettings() {
 
   return (
     <div className="ns-section">
-      {/* Header: title + toggle */}
+      {/* Header: title (with info tooltip) + toggle */}
       <div className="ns-header">
-        <p className="ns-title">Automatically invite AIRA Notetaker to</p>
+        <div className="ns-title-row">
+          <p className="ns-title">Automatically invite AIRA Notetaker to</p>
+          <span className="ns-tooltip-wrapper" tabIndex={0}>
+            <InfoIcon />
+            <span className="ns-tooltip" role="tooltip">
+              {HELPER_TEXT}
+            </span>
+          </span>
+        </div>
         <button
           type="button"
           role="switch"
@@ -96,12 +104,6 @@ export default function NotetakerSettings() {
         >
           <span className="ns-toggle-thumb" />
         </button>
-      </div>
-
-      {/* Helper text */}
-      <div className="ns-helper-row">
-        <InfoIcon />
-        <p className="ns-helper-text">{HELPER_TEXT}</p>
       </div>
 
       {/* Two dropdowns */}
@@ -243,9 +245,9 @@ function Select({
 function InfoIcon() {
   return (
     <svg
-      className="ns-helper-icon"
-      width="14"
-      height="14"
+      className="ns-info-icon"
+      width="16"
+      height="16"
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
