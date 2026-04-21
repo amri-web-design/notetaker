@@ -97,6 +97,7 @@ export default function NotetakerSettings() {
   const [informParticipants, setInformParticipants] = useState(false);
   const [showAiraTasks, setShowAiraTasks] = useState(true);
   const [defaultDueDate, setDefaultDueDate] = useState(1);
+  const [smartAssociation, setSmartAssociation] = useState(true);
 
   const disabled = !autoInviteEnabled;
 
@@ -232,6 +233,11 @@ export default function NotetakerSettings() {
     simulateSave();
   };
 
+  const handleSmartAssociationToggle = () => {
+    setSmartAssociation((v) => !v);
+    simulateSave();
+  };
+
   return (
     <div className="ns-page">
       <h1 className="ns-page-title">General settings</h1>
@@ -364,6 +370,23 @@ export default function NotetakerSettings() {
           options={LANGUAGE_OPTIONS}
           onChange={handleLanguageChange}
         />
+      </div>
+
+      {/* Smart Association card */}
+      <div className="ns-card">
+        <div className="ns-card-row">
+          <div className="ns-card-content">
+            <h3 className="ns-card-title">Smart Association</h3>
+            <p className="ns-card-desc">
+              Use AIRA to smartly associate a meeting to a Job
+            </p>
+          </div>
+          <Toggle
+            checked={smartAssociation}
+            onClick={handleSmartAssociationToggle}
+            ariaLabel="Smart Association"
+          />
+        </div>
       </div>
 
       {/* Record meeting card */}
